@@ -2,7 +2,7 @@
 #include "Calculations.h"
 #include <vector>
 
-int main(int argc, char const *argv[])
+int main()
 {
 
     Calculations calc;
