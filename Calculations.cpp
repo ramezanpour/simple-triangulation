@@ -77,7 +77,8 @@ const Point Calculations::CalculateLocation()
     if (m_beaconsToProcess.size() < 3)
     {
         fprintf(stderr, "Unable to find location because at least 3 beacons are needed.\n");
-        exit(1);
+        result.x = -1;
+        result.y = -1;
     }
     double normalizeCoefficient = 0.0;
     for (unsigned int i = 0; i < m_beaconsToProcess.size(); i++)
@@ -92,6 +93,12 @@ const Point Calculations::CalculateLocation()
         weight[i] += 1.0 / (fabs(m_beaconsToProcess[i].distant * normalizeCoefficient));
         result.x += weight[i] * m_beaconsToProcess[i].location.x;
         result.y += weight[i] * m_beaconsToProcess[i].location.y;
+        printf("Weight: %f, LX: %f, LY: %f, X: %f, Y: %f\n",
+               weight[i],
+               m_beaconsToProcess[i].location.x,
+               m_beaconsToProcess[i].location.y,
+               result.x,
+               result.y);
     }
 
     return result;
@@ -118,17 +125,35 @@ void Calculations::RemoveUnrecognizedBeacons()
 {
     for (auto beacon : m_beacons)
     {
-        if (IsInRecognizedBeacons(beacon))
-            m_beaconsToProcess.push_back(beacon);
+        Beacon correspondingBeacon;
+        if (IsInRecognizedBeacons(beacon, correspondingBeacon) && !IsDuplicateBeacons(beacon))
+        {
+            correspondingBeacon.distant = beacon.distant;
+            correspondingBeacon.mRssi = beacon.mRssi;
+            correspondingBeacon.transmissionPower = beacon.transmissionPower;
+            m_beaconsToProcess.push_back(correspondingBeacon);
+        }
     }
 }
 
-bool Calculations::IsInRecognizedBeacons(Beacon b)
+bool Calculations::IsDuplicateBeacons(Beacon b)
+{
+    for (auto beacon : m_beaconsToProcess)
+    {
+        if (beacon == b)
+            return true;
+    }
+
+    return false;
+}
+
+bool Calculations::IsInRecognizedBeacons(Beacon b, Beacon &correspondingBeacon)
 {
     for (auto beacon : m_recognizedBeacons)
     {
         if (b == beacon)
         {
+            correspondingBeacon = beacon;
             return true;
         }
     }

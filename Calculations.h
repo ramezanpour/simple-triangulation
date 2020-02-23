@@ -20,7 +20,8 @@ private:
 
     void RemoveUnrecognizedBeacons();
     void RemoveWeakBeacons();
-    bool IsInRecognizedBeacons(Beacon beacon);
+    bool IsInRecognizedBeacons(Beacon b, Beacon &correspondingBeacon);
+    bool IsDuplicateBeacons(Beacon beacon);
     Beacon ParseBeacon(const std::string &str);
 };
 
