@@ -123,6 +123,7 @@ const std::vector<Beacon> Calculations::ParseBeacons(const std::string &str)
 
 void Calculations::RemoveUnrecognizedBeacons()
 {
+    m_beaconsToProcess.clear();
     for (auto beacon : m_beacons)
     {
         Beacon correspondingBeacon;
