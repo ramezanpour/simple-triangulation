@@ -1,6 +1,9 @@
 #include "Calculations.h"
-#include <math.h>
-#include <algorithm>
+
+Calculations::Calculations(int threshold) : m_threshold(threshold),
+                                            m_lastBeaconClearanceTime(std::chrono::system_clock::to_time_t(std::chrono ::system_clock::now()))
+{
+}
 
 std::vector<std::string> split(const std::string &str, const std::string &delim)
 {
@@ -93,12 +96,12 @@ const Point Calculations::CalculateLocation()
         weight[i] += 1.0 / (fabs(m_beaconsToProcess[i].distant * normalizeCoefficient));
         result.x += weight[i] * m_beaconsToProcess[i].location.x;
         result.y += weight[i] * m_beaconsToProcess[i].location.y;
-        printf("Weight: %f, LX: %f, LY: %f, X: %f, Y: %f\n",
-               weight[i],
-               m_beaconsToProcess[i].location.x,
-               m_beaconsToProcess[i].location.y,
-               result.x,
-               result.y);
+        // printf("Weight: %f, LX: %f, LY: %f, X: %f, Y: %f\n",
+        //        weight[i],
+        //        m_beaconsToProcess[i].location.x,
+        //        m_beaconsToProcess[i].location.y,
+        //        result.x,
+        //        result.y);
     }
 
     return result;
@@ -123,7 +126,17 @@ const std::vector<Beacon> Calculations::ParseBeacons(const std::string &str)
 
 void Calculations::RemoveUnrecognizedBeacons()
 {
-    m_beaconsToProcess.clear();
+    auto now = std::chrono::system_clock::now();
+    auto start = std::chrono::system_clock::from_time_t(m_lastBeaconClearanceTime);
+    std::chrono::duration<double> diff = now - start;
+    printf("Last beacon clearance diff is: %f\n", diff.count());
+    if (diff.count() > m_threshold)
+    {
+        m_lastBeaconClearanceTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        m_beaconsToProcess.clear();
+    }
+    // We will hold beacons data for m_thershold milliseconds.
+
     for (auto beacon : m_beacons)
     {
         Beacon correspondingBeacon;
