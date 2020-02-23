@@ -1,3 +1,5 @@
+// Developed by Mohammad Mahdi Ramezanpour, Feb. 2020 (i@ramezanpour.net)
+
 #if !defined(CALCULATIONS_H)
 #define CALCULATIONS_H
 
