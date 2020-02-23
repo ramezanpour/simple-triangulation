@@ -5,7 +5,7 @@ Calculations::Calculations(int threshold) : m_threshold(threshold),
 {
 }
 
-std::vector<std::string> split(const std::string &str, const std::string &delim)
+const std::vector<std::string> split(const std::string &str, const std::string &delim)
 {
     std::vector<std::string> tokens;
     size_t prev = 0, pos = 0;
@@ -150,7 +150,7 @@ void Calculations::RemoveUnrecognizedBeacons()
     }
 }
 
-bool Calculations::IsDuplicateBeacons(Beacon b)
+bool Calculations::IsDuplicateBeacons(const Beacon &b)
 {
     for (auto beacon : m_beaconsToProcess)
     {
@@ -161,11 +161,11 @@ bool Calculations::IsDuplicateBeacons(Beacon b)
     return false;
 }
 
-bool Calculations::IsInRecognizedBeacons(Beacon b, Beacon &correspondingBeacon)
+bool Calculations::IsInRecognizedBeacons(const Beacon &b, Beacon &correspondingBeacon)
 {
     for (auto beacon : m_recognizedBeacons)
     {
-        if (b == beacon)
+        if (beacon == b)
         {
             correspondingBeacon = beacon;
             return true;
