@@ -128,6 +128,7 @@ const std::vector<Beacon> Calculations::ParseBeacons(const std::string &str)
 
 void Calculations::RemoveUnrecognizedBeacons()
 {
+    // We will hold beacons data for m_thershold milliseconds.
     auto now = std::chrono::system_clock::now();
     auto start = std::chrono::system_clock::from_time_t(m_lastBeaconClearanceTime);
     std::chrono::duration<double> diff = now - start;
@@ -137,7 +138,6 @@ void Calculations::RemoveUnrecognizedBeacons()
         m_lastBeaconClearanceTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         m_beaconsToProcess.clear();
     }
-    // We will hold beacons data for m_thershold milliseconds.
 
     for (auto beacon : m_beacons)
     {

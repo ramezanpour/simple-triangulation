@@ -14,7 +14,7 @@
 class Calculations
 {
 public:
-    Calculations(int thershold = 2000);
+    Calculations(int thershold = 2);
     const Point CalculateLocation();
     void FillBeacons(const std::vector<Beacon> &beacons);
     void SetRecognizedBeacons(const std::vector<Beacon> &recognizedBeacons);
