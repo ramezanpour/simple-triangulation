@@ -18,6 +18,11 @@ void printVector(std::vector<Beacon> &beacons)
     }
 }
 
+void callback(Point p)
+{
+    printf("Point: %f, %f\n", p.x, p.y);
+}
+
 int main()
 {
 
@@ -34,8 +39,8 @@ int main()
     auto beacons = calc.ParseBeacons(beaconsStr);
     //printVector(recognizedBeacons);
     calc.FillBeacons(beacons);
-    auto point = calc.CalculateLocation();
+    calc.StartCalculations(callback);
 
-    printf("X: %lf, Y: %lf\n", point.x, point.y);
+    //printf("X: %lf, Y: %lf\n", point.x, point.y);
     return 0;
 }

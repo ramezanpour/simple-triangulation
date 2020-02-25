@@ -10,12 +10,13 @@
 #include <chrono>
 #include <math.h>
 #include <algorithm>
+#include <functional>
 
 class Calculations
 {
 public:
     Calculations(int thershold = 2);
-    const Point CalculateLocation();
+    void StartCalculations(const std::function<void(Point)> &callback);
     void FillBeacons(const std::vector<Beacon> &beacons);
     void SetRecognizedBeacons(const std::vector<Beacon> &recognizedBeacons);
     const std::vector<Beacon> ParseBeacons(const std::string &str);
@@ -25,13 +26,16 @@ private:
     std::vector<Beacon> m_beacons;
     std::vector<Beacon> m_beaconsToProcess;
     int m_threshold;
-    time_t m_lastBeaconClearanceTime;
+    time_t m_nextCalculationTime;
+    std::function<void(Point)> m_callbackFunc;
 
-    void RemoveUnrecognizedBeacons();
+    void SelectBestBeaconsToProcess();
     void RemoveWeakBeacons();
-    bool IsInRecognizedBeacons(const Beacon &b, Beacon &correspondingBeacon);
-    bool IsDuplicateBeacons(const Beacon &beacon);
+    bool IsRecognized(const Beacon &b, Beacon &correspondingBeacon);
+    bool IsDuplicate(const Beacon &beacon);
+    const Point CalculateLocation();
     Beacon ParseBeacon(const std::string &str);
+    void ResetCalculationTime();
 };
 
 #endif // CALCULATIONS_H

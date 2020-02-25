@@ -2,8 +2,7 @@
 
 #include "Calculations.h"
 
-Calculations::Calculations(int threshold) : m_threshold(threshold),
-                                            m_lastBeaconClearanceTime(std::chrono::system_clock::to_time_t(std::chrono ::system_clock::now()))
+Calculations::Calculations(int threshold) : m_threshold(threshold)
 {
 }
 
@@ -24,10 +23,28 @@ const std::vector<std::string> split(const std::string &str, const std::string &
     return tokens;
 }
 
+void Calculations::ResetCalculationTime()
+{
+    m_nextCalculationTime = std::chrono::system_clock::to_time_t(
+        std::chrono::system_clock::now() + std::chrono::seconds(m_threshold));
+}
+
 void Calculations::FillBeacons(const std::vector<Beacon> &beacons)
 {
-    m_beacons = beacons;
-    RemoveUnrecognizedBeacons();
+    for (auto beacon : beacons)
+    {
+        m_beacons.push_back(beacon);
+    }
+
+    // TODO: After 2 seconds.
+    time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    if (now >= m_nextCalculationTime)
+    {
+        SelectBestBeaconsToProcess();
+        RemoveWeakBeacons();
+        m_callbackFunc(CalculateLocation());
+        ResetCalculationTime();
+    }
 }
 
 Beacon Calculations::ParseBeacon(const std::string &str)
@@ -109,6 +126,12 @@ const Point Calculations::CalculateLocation()
     return result;
 }
 
+void Calculations::StartCalculations(const std::function<void(Point)> &callback)
+{
+    m_callbackFunc = callback;
+    ResetCalculationTime();
+}
+
 void Calculations::SetRecognizedBeacons(const std::vector<Beacon> &recognizedBeacons)
 {
     m_recognizedBeacons = recognizedBeacons;
@@ -126,23 +149,12 @@ const std::vector<Beacon> Calculations::ParseBeacons(const std::string &str)
     return result;
 }
 
-void Calculations::RemoveUnrecognizedBeacons()
+void Calculations::SelectBestBeaconsToProcess()
 {
-    // We will hold beacons data for m_thershold milliseconds.
-    auto now = std::chrono::system_clock::now();
-    auto start = std::chrono::system_clock::from_time_t(m_lastBeaconClearanceTime);
-    std::chrono::duration<double> diff = now - start;
-    printf("Last beacon clearance diff is: %f\n", diff.count());
-    if (diff.count() > m_threshold)
-    {
-        m_lastBeaconClearanceTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-        m_beaconsToProcess.clear();
-    }
-
     for (auto beacon : m_beacons)
     {
         Beacon correspondingBeacon;
-        if (IsInRecognizedBeacons(beacon, correspondingBeacon) && !IsDuplicateBeacons(beacon))
+        if (IsRecognized(beacon, correspondingBeacon) && !IsDuplicate(beacon))
         {
             correspondingBeacon.distant = beacon.distant;
             correspondingBeacon.mRssi = beacon.mRssi;
@@ -152,7 +164,7 @@ void Calculations::RemoveUnrecognizedBeacons()
     }
 }
 
-bool Calculations::IsDuplicateBeacons(const Beacon &b)
+bool Calculations::IsDuplicate(const Beacon &b)
 {
     for (auto beacon : m_beaconsToProcess)
     {
@@ -163,7 +175,7 @@ bool Calculations::IsDuplicateBeacons(const Beacon &b)
     return false;
 }
 
-bool Calculations::IsInRecognizedBeacons(const Beacon &b, Beacon &correspondingBeacon)
+bool Calculations::IsRecognized(const Beacon &b, Beacon &correspondingBeacon)
 {
     for (auto beacon : m_recognizedBeacons)
     {
