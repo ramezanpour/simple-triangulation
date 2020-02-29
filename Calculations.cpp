@@ -102,6 +102,7 @@ const Point Calculations::CalculateLocation()
         fprintf(stderr, "Unable to find location because at least 3 beacons are needed.\n");
         result.x = -1;
         result.y = -1;
+        return result;
     }
     double normalizeCoefficient = 0.0;
     for (unsigned int i = 0; i < m_beaconsToProcess.size(); i++)
@@ -116,13 +117,9 @@ const Point Calculations::CalculateLocation()
         weight[i] += 1.0 / (fabs(m_beaconsToProcess[i].distant * normalizeCoefficient));
         result.x += weight[i] * m_beaconsToProcess[i].location.x;
         result.y += weight[i] * m_beaconsToProcess[i].location.y;
-        // printf("Weight: %f, LX: %f, LY: %f, X: %f, Y: %f\n",
-        //        weight[i],
-        //        m_beaconsToProcess[i].location.x,
-        //        m_beaconsToProcess[i].location.y,
-        //        result.x,
-        //        result.y);
     }
+
+    m_lastLocation = result;
 
     return result;
 }
@@ -158,12 +155,40 @@ void Calculations::SelectBestBeaconsToProcess()
         Beacon correspondingBeacon;
         if (IsRecognized(beacon, correspondingBeacon) && !IsDuplicate(beacon))
         {
-            correspondingBeacon.distant = beacon.distant;
+            double distance = CalculateAvgDistance(beacon);
+            correspondingBeacon.distant = distance;
             correspondingBeacon.mRssi = beacon.mRssi;
             correspondingBeacon.transmissionPower = beacon.transmissionPower;
             m_beaconsToProcess.push_back(correspondingBeacon);
         }
     }
+}
+
+double Calculations::CalculateAvgDistance(Beacon &beacon)
+{
+    std::map<double, int> distances;
+    for (auto b : m_beacons)
+    {
+        if (b == beacon)
+        {
+            auto item = distances.find(b.distant);
+            distances[b.distant] = item != distances.end() ? item->second + 1 : 1;
+        }
+    }
+
+    double selectedDistance = 0;
+    int mostData = 0;
+
+    for (auto item : distances)
+    {
+        if (item.second >= mostData)
+        {
+            selectedDistance = item.first;
+            mostData = item.second;
+        }
+    }
+
+    return selectedDistance;
 }
 
 bool Calculations::IsDuplicate(const Beacon &b)

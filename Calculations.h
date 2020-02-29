@@ -11,6 +11,8 @@
 #include <math.h>
 #include <algorithm>
 #include <functional>
+#include <numeric>
+#include <map>
 
 class Calculations
 {
@@ -28,6 +30,7 @@ private:
     int m_threshold;
     time_t m_nextCalculationTime;
     std::function<void(Point)> m_callbackFunc;
+    Point m_lastLocation;
 
     void SelectBestBeaconsToProcess();
     void RemoveWeakBeacons();
@@ -36,6 +39,7 @@ private:
     const Point CalculateLocation();
     Beacon ParseBeacon(const std::string &str);
     void ResetCalculationTime();
+    double CalculateAvgDistance(Beacon &beacon);
 };
 
 #endif // CALCULATIONS_H
