@@ -44,6 +44,7 @@ void Calculations::FillBeacons(const std::vector<Beacon> &beacons)
         RemoveWeakBeacons();
         m_callbackFunc(CalculateLocation());
         ResetCalculationTime();
+        m_beacons.clear();
     }
 }
 
@@ -151,6 +152,7 @@ const std::vector<Beacon> Calculations::ParseBeacons(const std::string &str)
 
 void Calculations::SelectBestBeaconsToProcess()
 {
+    m_beaconsToProcess.clear();
     for (auto beacon : m_beacons)
     {
         Beacon correspondingBeacon;
