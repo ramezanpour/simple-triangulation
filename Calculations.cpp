@@ -99,7 +99,7 @@ const Point Calculations::CalculateLocation()
     Point result;
     if (m_beaconsToProcess.size() < 3)
     {
-        fprintf(stderr, "Unable to find location because at least 3 beacons are needed.\n");
+        // Cannot determine location with less than 3 beacons.
         result.x = -1;
         result.y = -1;
         return result;
