@@ -119,6 +119,16 @@ const Point Calculations::CalculateLocation()
         result.y += weight[i] * m_beaconsToProcess[i].location.y;
     }
 
+    if (fabs(m_lastLocation.x - result.x) > 3)
+    {
+        result.x = m_lastLocation.x > result.x ? m_lastLocation.x - 1.0 : m_lastLocation.x + 1.0;
+    }
+
+    if (fabs(m_lastLocation.y - result.y) > 3)
+    {
+        result.y = m_lastLocation.y > result.y ? m_lastLocation.y - 1.0 : m_lastLocation.y + 1.0;
+    }
+
     m_lastLocation = result;
 
     return result;
