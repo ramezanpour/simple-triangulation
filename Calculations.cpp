@@ -43,7 +43,9 @@ void Calculations::FillBeacons(const std::vector<Beacon> &beacons)
         SelectBestBeaconsToProcess();
         RemoveWeakBeacons();
         m_callbackFunc(CalculateLocation());
+
         ResetCalculationTime();
+        // Cleaning up beacon list for next calculation.
         m_beacons.clear();
     }
 }
@@ -104,6 +106,7 @@ const Point Calculations::CalculateLocation()
         result.y = -1;
         return result;
     }
+
     double normalizeCoefficient = 0.0;
     for (unsigned int i = 0; i < m_beaconsToProcess.size(); i++)
     {
