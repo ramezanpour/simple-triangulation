@@ -133,6 +133,11 @@ const Point Calculations::CalculateLocation()
     }
 
     m_lastLocation = result;
+    m_lastKnownLocations.push(m_lastLocation);
+    if (m_lastKnownLocations.size() > 100)
+    {
+        m_lastKnownLocations.pop();
+    }
 
     return result;
 }

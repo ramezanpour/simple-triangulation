@@ -13,6 +13,7 @@
 #include <functional>
 #include <numeric>
 #include <map>
+#include <stack>
 
 class Calculations
 {
@@ -31,6 +32,7 @@ private:
     time_t m_nextCalculationTime;
     std::function<void(Point)> m_callbackFunc;
     Point m_lastLocation;
+    std::stack<Point> m_lastKnownLocations;
 
     void SelectBestBeaconsToProcess();
     void RemoveWeakBeacons();
